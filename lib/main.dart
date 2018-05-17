@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 
 void main() => runApp(new MyApp());
@@ -70,15 +71,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<File> _incrementCounter() async {
+  void takeNote() {
     setState(() {
-      _counter++;
-      // Todo: check whether the user really has inputted her mood.
-
-      Navigator.push(context, new MaterialPageRoute(builder: (context) => new NotePage()));
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => new NotePage(storage: new CounterStorage(),)));
     });
-    print('$_counter');
-    return widget.storage.writeCounter(_counter);
   }
 
 
@@ -109,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: takeNote,
 
         tooltip: 'Increment',
         child: new Icon(Icons.add),
@@ -121,14 +117,24 @@ class _MyHomePageState extends State<MyHomePage> {
 class NotePage extends StatefulWidget {
   final CounterStorage storage;
   NotePage({Key key,  this.storage}) : super(key: key);
-
   @override
   _NotePageState createState() => new _NotePageState();
 }
 
 class _NotePageState extends State<NotePage> {
+  int _counter = 0;
   int _selected = 0;
   int index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.storage.readCounter().then((int value) {
+      setState(() {
+        _counter = value;
+      });
+    });
+  }
 
   void onChanged(int value) {
     setState(() {
@@ -138,19 +144,38 @@ class _NotePageState extends State<NotePage> {
     print('current value is $value');
   }
 
-  void _changePage(int index) {
-
+//  void _changePage(int index) {
+//
+//    setState(() {
+//      this.index = index;
+//      if (index == 0) {
+//        print('开始新建笔记');
+//        _counter++;
+//        // todo: write code for storage.
+//      }
+//      else {
+//        print('Return to home, note not added.');
+//        Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
+//      }
+//      return widget.storage.writeCounter(_counter);
+//    });
+//  }
+  Future<File> _changPage(index) async {
     setState(() {
       this.index = index;
       if (index == 0) {
+        _counter++;
         print('开始新建笔记');
-        // todo: write code for storage.
       }
       else {
-        print('Return to home, note not added.');
-        Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
+        print('Return back to home');
       }
+      // Todo: check whether the user really has inputted her mood.
+      Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
     });
+    // todo: add seperate storage.
+    print('$_counter');
+    return widget.storage.writeCounter(_counter);
   }
 
   List<Widget> makeRadioList() {
@@ -187,7 +212,7 @@ class _NotePageState extends State<NotePage> {
       ), 
       bottomNavigationBar: new BottomNavigationBar(
           currentIndex: index,
-          onTap: (int index) {_changePage(index);},
+          onTap: (int index) {_changPage(index);},
           items: <BottomNavigationBarItem>[
             new BottomNavigationBarItem(
                 icon: new Icon(Icons.done),
