@@ -49,6 +49,19 @@ class CounterStorage {
   }
 }
 
+// storage for Mood data
+//class DataStorage {
+//  // Get the directory
+//  Future<String> get _localPath async {
+//    final directory = await getApplicationDocumentsDirectory();
+//    return directory.path;
+//  }
+//  Future<File> get _localFile async {
+//    final path = await _localPath;
+//    return new File('$path/mood.json');
+//  }
+//}
+
 class MyHomePage extends StatefulWidget {
   final CounterStorage storage;
 
