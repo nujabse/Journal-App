@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 
@@ -49,18 +51,31 @@ class CounterStorage {
   }
 }
 
-// storage for Mood data
-//class DataStorage {
-//  // Get the directory
-//  Future<String> get _localPath async {
-//    final directory = await getApplicationDocumentsDirectory();
-//    return directory.path;
-//  }
-//  Future<File> get _localFile async {
-//    final path = await _localPath;
-//    return new File('$path/mood.json');
-//  }
-//}
+class MoodStorage {
+  void createFile(Map<String, String> content, Directory dir, String filename, bool fileExists) {
+    print("Mood file creating now!");
+    File file = new File(dir.path + "/" + filename);
+    file.createSync();
+    fileExists = true;
+    file.writeAsStringSync(json.encode(content));
+  }
+
+  void writeToFile(String key, String value, File jsonFile, bool fileExists) {
+    print("Writing to file now!");
+    Map<String, String> content = {key: value};
+    if (fileExists) {
+      print("File Exists!");
+      Map<String, String> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      jsonFileContent.addAll(content);
+      jsonFile.writeAsStringSync(json.encode(jsonFileContent));
+    } else {
+      print("File not exixt!");
+//      createFile(content, dir, filename, fileExists)
+    // todo: create file
+      // todo: set the state to change filecontent.
+    }
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   final CounterStorage storage;
@@ -138,6 +153,12 @@ class _NotePageState extends State<NotePage> {
   int _counter = 0;
   int _selected = 0;
   int index = 0;
+  File jsonFile;
+  Directory dir;
+  String fileName = "mood.json";
+  bool fileExists = false;
+  Map<String, String> fileContent;
+  // todo: Add date and time to file name.
 
   @override
   void initState() {
@@ -147,7 +168,14 @@ class _NotePageState extends State<NotePage> {
         _counter = value;
       });
     });
+    getApplicationDocumentsDirectory().then((Directory directory) {
+      dir = directory;
+      jsonFile = new File(dir.path + "/" + fileName);
+      fileExists = jsonFile.existsSync();
+      if (fileExists) this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
+    });
   }
+
 
   void onChanged(int value) {
     setState(() {
@@ -157,22 +185,7 @@ class _NotePageState extends State<NotePage> {
     print('current value is $value');
   }
 
-//  void _changePage(int index) {
-//
-//    setState(() {
-//      this.index = index;
-//      if (index == 0) {
-//        print('开始新建笔记');
-//        _counter++;
-//        // todo: write code for storage.
-//      }
-//      else {
-//        print('Return to home, note not added.');
-//        Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
-//      }
-//      return widget.storage.writeCounter(_counter);
-//    });
-//  }
+
   Future<File> _changPage(index) async {
     setState(() {
       this.index = index;
@@ -183,7 +196,7 @@ class _NotePageState extends State<NotePage> {
       else {
         print('Return back to home');
       }
-      // Todo: check whether the user really has inputted her mood.
+      // Done: check whether the user really has inputted her mood.
       Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
     });
     // todo: add seperate storage.
