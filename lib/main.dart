@@ -60,7 +60,7 @@ class MoodStorage {
     file.writeAsStringSync(json.encode(content));
   }
 
-  void writeToFile(String key, String value, File jsonFile, bool fileExists) {
+  void writeToFile(String key, String value, File jsonFile, bool fileExists, Directory dir, String filename) {
     print("Writing to file now!");
     Map<String, String> content = {key: value};
     if (fileExists) {
@@ -70,9 +70,7 @@ class MoodStorage {
       jsonFile.writeAsStringSync(json.encode(jsonFileContent));
     } else {
       print("File not exixt!");
-//      createFile(content, dir, filename, fileExists)
-    // todo: create file
-      // todo: set the state to change filecontent.
+      createFile(content, dir, filename, fileExists);
     }
   }
 }
@@ -158,6 +156,8 @@ class _NotePageState extends State<NotePage> {
   String fileName = "mood.json";
   bool fileExists = false;
   Map<String, String> fileContent;
+
+  MoodStorage mood;
   // todo: Add date and time to file name.
 
   @override
@@ -176,7 +176,6 @@ class _NotePageState extends State<NotePage> {
     });
   }
 
-
   void onChanged(int value) {
     setState(() {
       _selected = value;
@@ -192,6 +191,9 @@ class _NotePageState extends State<NotePage> {
       if (index == 0) {
         _counter++;
         print('开始新建笔记');
+        String time = new DateFormat.yMd().add_jm().format(new DateTime.now());
+        mood = new MoodStorage();
+        mood.writeToFile("Time: ", time, jsonFile, fileExists, dir, fileName);
       }
       else {
         print('Return back to home');
