@@ -65,7 +65,7 @@ class MoodStorage {
     Map<String, String> content = {key: value};
     if (fileExists) {
       print("File Exists!");
-      Map<String, String> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
       jsonFileContent.addAll(content);
       jsonFile.writeAsStringSync(json.encode(jsonFileContent));
     } else {
@@ -155,7 +155,7 @@ class _NotePageState extends State<NotePage> {
   Directory dir;
   String fileName = "mood.json";
   bool fileExists = false;
-  Map<String, String> fileContent;
+  Map<String, dynamic> fileContent;
 
   MoodStorage mood;
   // todo: Add date and time to file name.
@@ -190,10 +190,13 @@ class _NotePageState extends State<NotePage> {
       this.index = index;
       if (index == 0) {
         _counter++;
+        String moodValue = _selected.toString();
         print('开始新建笔记');
-        String time = new DateFormat.yMd().add_jm().format(new DateTime.now());
+        String time = new DateFormat.yMd().add_jm().format(new DateTime.now()).toString();
         mood = new MoodStorage();
-        mood.writeToFile("Time: ", time, jsonFile, fileExists, dir, fileName);
+        print(fileExists);
+        mood.writeToFile(time, moodValue, jsonFile, fileExists, dir, fileName);
+//        print(mood.toString());
       }
       else {
         print('Return back to home');
