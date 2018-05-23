@@ -106,13 +106,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return new Scaffold(
+      drawer: new Drawer(
+        child: new ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            new Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: new DrawerHeader(
+                  child: new Text(
+                      'Mood Journal',
+                  style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),),
+              ),
+            ),
+            new ListTile(
+              title: new Text('每日心情'),
+              onTap: () {
+                Navigator.push(context, new MaterialPageRoute(builder: (context) => new DisplayPage()));
+              },
+            )
+          ],
+        ),
+      ),
       appBar: new AppBar(
         title: new Text('心情日志'),
       ),
@@ -132,7 +147,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: takeNote,
-
         tooltip: 'Increment',
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -204,7 +218,6 @@ class _NotePageState extends State<NotePage> {
       // Done: check whether the user really has inputted her mood.
       Navigator.push(context, new MaterialPageRoute(builder: (context) => new MyHomePage(storage: new CounterStorage())));
     });
-    // todo: add seperate storage.
     print('$_counter');
     return widget.storage.writeCounter(_counter);
   }
@@ -240,7 +253,7 @@ class _NotePageState extends State<NotePage> {
             makeRadioList(),
           ),
         ),
-      ), 
+      ),
       bottomNavigationBar: new BottomNavigationBar(
           currentIndex: index,
           onTap: (int index) {_changPage(index);},
@@ -256,4 +269,53 @@ class _NotePageState extends State<NotePage> {
     );
   }
 }
+
+
+class DisplayPage extends StatefulWidget {
+    @override
+  _DisplayPageState createState() => new _DisplayPageState();
+}
+
+class _DisplayPageState extends State<DisplayPage> {
+
+  var data;
+  String  path;
+
+
+  void getData()  async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    String path = appDocPath + '/' + 'mood.json';
+    File jsonFile = new File(path);
+    setState(() {
+      var data = json.decode(jsonFile.readAsStringSync());
+      print(data.length);
+    });
+    }
+
+  @override
+  void initState() {
+    super.initState();
+    this.getData();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new  Text('每日心情')
+      ),
+      body: new ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: data == null? 0 : data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return new Card (
+            child: new Text(data[index]),
+            );
+          },),
+    );
+  }
+}
+
 
