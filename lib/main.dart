@@ -52,25 +52,37 @@ class CounterStorage {
 }
 
 class MoodStorage {
-  void createFile(Map<String, String> content, Directory dir, String filename, bool fileExists) {
+  void createFile(String content, Directory dir, String filename, bool fileExists) {
     print("Mood file creating now!");
     File file = new File(dir.path + "/" + filename);
     file.createSync();
     fileExists = true;
-    file.writeAsStringSync(json.encode(content));
+    file.writeAsStringSync(content);  // create file encoded json string twice, so
+                                      // decoding is not working.
   }
 
   void writeToFile(String key, String value, File jsonFile, bool fileExists, Directory dir, String filename) {
     print("Writing to file now!");
-    Map<String, String> content = {key: value};
+    List<Map<String, String>> moodObject = [
+      {
+        'Time': key,
+        'Value': value,
+      },
+    ];
+    var jsonText = json.encode(moodObject);
+    print(jsonText);
     if (fileExists) {
       print("File Exists!");
-      Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
-      jsonFileContent.addAll(content);
-      jsonFile.writeAsStringSync(json.encode(jsonFileContent));
+      String jsonString= jsonFile.readAsStringSync();
+      var jsonObject= json.decode(jsonString);
+      assert (jsonObject is List);
+      print(jsonObject[0]["Time"]);
+      print(jsonObject);
+      jsonObject.add(moodObject);
+      jsonFile.writeAsStringSync(json.encode(jsonObject));
     } else {
       print("File not exixt!");
-      createFile(content, dir, filename, fileExists);
+      createFile(jsonText, dir, filename, fileExists);
     }
   }
 }
@@ -169,7 +181,7 @@ class _NotePageState extends State<NotePage> {
   Directory dir;
   String fileName = "mood.json";
   bool fileExists = false;
-  Map<String, dynamic> fileContent;
+  var  fileContent;
 
   MoodStorage mood;
   // todo: Add date and time to file name.
