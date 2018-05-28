@@ -68,25 +68,30 @@ class MoodStorage {
   void writeToFile(String key, String value, File jsonFile, bool fileExists,
       Directory dir, String filename) {
     print("Writing to file now!");
-    List<Map<String, String>> moodObject = [
+    var moodObject =
       {
         'Time': key,
         'Value': value,
-      },
-    ];
+      };
+    print("mood object is: " + moodObject.toString());
     var jsonText = json.encode(moodObject);
     print(jsonText);
     if (fileExists) {
       print("File Exists!");
       String jsonString = jsonFile.readAsStringSync();
+      print("Before: jsonString " + jsonString);
       var jsonObject = json.decode(jsonString);
       assert(jsonObject is List);
-      print(jsonObject[0]["Time"]);
-      print(jsonObject);
+      print(jsonObject[2]["Value"]);
+      print("Before adding: " + jsonObject.toString());
+      // todo : add object to exiting object
       jsonObject.add(moodObject);
-      jsonFile.writeAsStringSync(json.encode(jsonObject));
+
+      print("After adding: " + jsonObject.toString());
+      jsonFile.writeAsStringSync(jsonEncode(jsonObject));
     } else {
       print("File not exixt!");
+      jsonText = '[' + jsonText + ']';
       createFile(jsonText, dir, filename, fileExists);
     }
   }
