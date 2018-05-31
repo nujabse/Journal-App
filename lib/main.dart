@@ -82,7 +82,7 @@ class MoodStorage {
       print("Before: jsonString " + jsonString);
       var jsonObject = json.decode(jsonString);
       assert(jsonObject is List);
-      print(jsonObject[2]["Value"]);
+//      print(jsonObject[2]["Value"]);
       print("Before adding: " + jsonObject.toString());
       // todo : add object to exiting object
       jsonObject.add(moodObject);
@@ -323,7 +323,7 @@ class _DisplayPageState extends State<DisplayPage> {
     this.setState(() {
       _data = json.decode(jsonData);
     });
-    print(_data[1]["value"]);
+    print(_data[1]["Value"]);
     return "Success!";
   }
 
@@ -343,7 +343,17 @@ class _DisplayPageState extends State<DisplayPage> {
         itemCount: _data.length,
         itemBuilder: (BuildContext context, int index) {
           return new Card(
-            child: new Text(_data[index]["Time"]),
+            child: new Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                new ListTile(
+                  leading: const Icon(Icons.assessment),
+                  title: new Text(_data[index]["Value"]),
+                  subtitle: new Text(_data[index]["Time"]),
+
+                )
+              ],
+            )
           );
         },
       ),
